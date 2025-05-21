@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using OnlineDiary.Models;
 
 namespace OnlineDiary.Data
@@ -7,6 +8,7 @@ namespace OnlineDiary.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
+            
         }
 
         public DbSet<User> Users { get; set; }

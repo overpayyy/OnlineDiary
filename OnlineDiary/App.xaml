@@ -4,11 +4,6 @@
              xmlns:local="clr-namespace:OnlineDiary"
              StartupUri="RoleSelectionWindow.xaml">
     <Application.Resources>
-        <DropShadowEffect x:Key="Shadow"
-                  BlurRadius="20"
-                  ShadowDepth="5"
-                  Direction="270"
-                  Color="#33000000" />
          
     </Application.Resources>
 </Application>
