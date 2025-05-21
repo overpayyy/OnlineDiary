@@ -13,7 +13,7 @@
 
         <Grid Grid.Column="0">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="250">
-                <TextBlock Text="Hello!" FontSize="30" FontWeight="Bold" Margin="0,0,0,10" />
+                <TextBlock Text="Hello teacher!" FontSize="30" FontWeight="Bold" Margin="0,0,0,10" />
                 <TextBlock Text="Sign in to your account" FontSize="14" Foreground="Gray" Margin="0,0,0,20" />
 
                 <Border Background="#F5F5F5" CornerRadius="15" Padding="10" Margin="0,0,0,10">

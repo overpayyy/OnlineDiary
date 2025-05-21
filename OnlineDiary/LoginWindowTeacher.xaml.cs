@@ -39,16 +39,8 @@ namespace OnlineDiary
                 {
                     if (user.Role == "Teacher")
                     {
-                        // Відкрити вікно вчителя
-                        TeacherMainWindow teacherWindow = new TeacherMainWindow(user); // можна не передавати user, якщо не треба
+                        TeacherMainWindow teacherWindow = new TeacherMainWindow(user);
                         teacherWindow.Show();
-                        this.Close();
-                    }
-                    else if (user.Role == "Student")
-                    {
-                        // Відкрити вікно учня
-                        StudentMainWindow studentWindow = new StudentMainWindow(user);
-                        studentWindow.Show();
                         this.Close();
                     }
                     else
