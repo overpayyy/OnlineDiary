@@ -1,8 +1,7 @@
 ﻿<Application x:Class="OnlineDiary.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:OnlineDiary"
-             StartupUri="RoleSelectionWindow.xaml">
+             xmlns:local="clr-namespace:OnlineDiary">
     <Application.Resources>
          
     </Application.Resources>

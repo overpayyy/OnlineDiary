@@ -12,15 +12,15 @@ namespace OnlineDiary
 
         private void StudentButton_Click(object sender, RoutedEventArgs e)
         {
-            var studentLogin = new LoginWindowStudent();
-            NavigationService.GetNavigationService(this)?.Navigate(studentLogin);
+            var window = new LoginWindowStudent();
+            window.Show();
             this.Close();
         }
 
         private void TeacherButton_Click(object sender, RoutedEventArgs e)
         {
-            var teacherLogin = new LoginWindowTeacher();
-            NavigationService.GetNavigationService(this)?.Navigate(teacherLogin);
+            var window = new LoginWindowTeacher();
+            window.Show();
             this.Close();
         }
     }

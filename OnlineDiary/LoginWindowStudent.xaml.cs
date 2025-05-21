@@ -39,7 +39,7 @@ namespace OnlineDiary
                 {
                     if (user.Role == "Student")
                     {
-                        StudentMainWindow studentWindow = new StudentMainWindow(user);
+                        StudentMainWindow studentWindow = new StudentMainWindow();
                         studentWindow.Show();
                         this.Close();
                     }

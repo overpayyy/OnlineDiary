@@ -18,6 +18,14 @@ namespace OnlineDiary
             DbContext.Database.Migrate();
 
             base.OnStartup(e);
+
+            using (var context = new AppDbContext(options))
+            {
+                AppDbContext.SeedData(context);
+            }
+
+            var roleSelectionWindow = new RoleSelectionWindow();
+            roleSelectionWindow.Show();
         }
     }
 }

@@ -39,7 +39,7 @@ namespace OnlineDiary
                 {
                     if (user.Role == "Teacher")
                     {
-                        TeacherMainWindow teacherWindow = new TeacherMainWindow(user);
+                        TeacherMainWindow teacherWindow = new TeacherMainWindow();
                         teacherWindow.Show();
                         this.Close();
                     }
