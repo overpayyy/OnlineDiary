@@ -5,7 +5,6 @@
         Background="#F5F5F5" ResizeMode="NoResize">
 
     <Grid>
-        <!-- Центральна картка -->
         <Border Width="600" Height="400"
                 Background="White"
                 CornerRadius="20"
@@ -18,8 +17,8 @@
                            HorizontalAlignment="Center" Margin="0,0,0,30"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
-                    <!-- Student -->
-                    <Button Width="120" Height="120" Margin="20"
+
+                    <Button x:Name="StudentButton" Width="120" Height="120" Margin="20"
                             Background="#FFA500" BorderThickness="0"
                             Click="StudentButton_Click" Cursor="Hand"
                             ToolTip="I'm a Student">
@@ -29,8 +28,7 @@
                         </StackPanel>
                     </Button>
 
-                    <!-- Teacher -->
-                    <Button Width="120" Height="120" Margin="20"
+                    <Button x:Name="TeacherButton" Width="120" Height="120" Margin="20"
                             Background="#32CD32" BorderThickness="0"
                             Click="TeacherButton_Click" Cursor="Hand"
                             ToolTip="I'm a Teacher">
