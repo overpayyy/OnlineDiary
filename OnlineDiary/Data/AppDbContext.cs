@@ -16,6 +16,7 @@ namespace OnlineDiary.Data
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<Grade> Grades { get; set; }
         public DbSet<ScheduleEntry> ScheduleEntries { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
 
         public static void SeedData(AppDbContext context)
         {
