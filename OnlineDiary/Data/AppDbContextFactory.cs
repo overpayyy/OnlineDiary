@@ -10,7 +10,7 @@ namespace OnlineDiary.Data
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             optionsBuilder.UseSqlite("Data Source=diary.db");
 
-            return new AppDbContext(optionsBuilder.Options);
+            return new AppDbContext();
         }
     }
 }

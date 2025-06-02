@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\**" />
+    <EmbeddedResource Remove="Views\**" />
+    <None Remove="Views\**" />
+    <Page Remove="Views\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Resources\email.png" />
     <None Remove="Resources\lock.png" />
     <None Remove="Resources\student.png" />
@@ -33,10 +40,6 @@
     <Resource Include="Resources\lock.png" />
     <Resource Include="Resources\student.png" />
     <Resource Include="Resources\teacher.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Views\" />
   </ItemGroup>
 
 </Project>

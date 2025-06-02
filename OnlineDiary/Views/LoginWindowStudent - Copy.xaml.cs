@@ -30,7 +30,7 @@ namespace OnlineDiary
                 .UseSqlite("Data Source=diary.db")
                 .Options;
 
-            using (var context = new AppDbContext())
+            using (var context = new AppDbContext(options))
             {
                 var user = context.Users
                     .FirstOrDefault(u => u.Email == email && u.Password == password);

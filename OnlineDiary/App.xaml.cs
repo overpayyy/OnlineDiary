@@ -6,22 +6,25 @@ namespace OnlineDiary
 {
     public partial class App : Application
     {
-        public static AppDbContext DbContext { get; private set; }
+        public static class DbInitializer
+        {
+            public static void Initialize()
+            {
+                using (var context = new AppDbContext())
+                {
+                    context.Database.EnsureCreated();
+                }
+            }
+        }
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite("Data Source=diary.db")
-                .Options;
-
-            DbContext = new AppDbContext(options);
-            DbContext.Database.Migrate();
-
             base.OnStartup(e);
+            DbInitializer.Initialize();
 
-            using (var context = new AppDbContext(options))
+            using (var context = new AppDbContext())
             {
-                AppDbContext.SeedData(context);
+                context.Database.EnsureCreated();
             }
 
             var roleSelectionWindow = new RoleSelectionWindow();

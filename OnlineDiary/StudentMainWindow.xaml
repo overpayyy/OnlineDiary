@@ -1,7 +1,6 @@
-﻿<Window x:Class="OnlineDiary.Views.StudentMainWindow"
+﻿<Window x:Class="StudentMainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:OnlineDiary.Views"
         Title="Student Panel" Height="720" Width="1280" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -9,7 +8,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- LEFT PANEL -->
+        <!-- Left Panel -->
         <StackPanel Background="#F6F7FA" Grid.Column="0">
             <TextBlock Text="Online Diary" FontSize="20" FontWeight="Bold"
                        Margin="20,30,0,20" Foreground="#333"/>
@@ -24,90 +23,22 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- RIGHT PANEL - Schedule Content -->
-        <Grid Grid.Column="1">
+        <!-- Main Content Area -->
+        <Grid Grid.Column="1" Background="White" Margin="10">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <ScrollViewer Margin="20" VerticalScrollBarVisibility="Auto">
-                <UniformGrid Columns="2" Rows="3" Margin="0,0,0,20">
-                    <!-- MONDAY -->
-                    <Border Background="#F0F4FF" CornerRadius="10" Padding="15" Margin="8">
-                        <StackPanel>
-                            <TextBlock Text="Monday" FontSize="18" FontWeight="Bold" Foreground="#2D5CFE" Margin="0,0,0,5"/>
-                            <TextBlock Text="08:30 - Math (Room 101)" Margin="0,3"/>
-                            <TextBlock Text="09:30 - English (Room 102)" Margin="0,3"/>
-                            <TextBlock Text="10:30 - History (Room 103)" Margin="0,3"/>
-                            <TextBlock Text="11:30 - Science (Room 104)" Margin="0,3"/>
-                            <TextBlock Text="12:30 - Art (Room 105)" Margin="0,3"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- TUESDAY -->
-                    <Border Background="#FFF9E6" CornerRadius="10" Padding="15" Margin="8">
-                        <StackPanel>
-                            <TextBlock Text="Tuesday" FontSize="18" FontWeight="Bold" Foreground="#FF9800" Margin="0,0,0,5"/>
-                            <TextBlock Text="08:30 - Science (Room 201)" Margin="0,3"/>
-                            <TextBlock Text="09:30 - Art (Room 204)" Margin="0,3"/>
-                            <TextBlock Text="10:30 - Music (Room 205)" Margin="0,3"/>
-                            <TextBlock Text="11:30 - PE (Gym)" Margin="0,3"/>
-                            <TextBlock Text="12:30 - Geography (Room 106)" Margin="0,3"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- WEDNESDAY -->
-                    <Border Background="#E6FFFA" CornerRadius="10" Padding="15" Margin="8">
-                        <StackPanel>
-                            <TextBlock Text="Wednesday" FontSize="18" FontWeight="Bold" Foreground="#00BFA5" Margin="0,0,0,5"/>
-                            <TextBlock Text="08:30 - Geography (Room 106)" Margin="0,3"/>
-                            <TextBlock Text="09:30 - PE (Gym)" Margin="0,3"/>
-                            <TextBlock Text="10:30 - Math (Room 101)" Margin="0,3"/>
-                            <TextBlock Text="11:30 - English (Room 102)" Margin="0,3"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- THURSDAY -->
-                    <Border Background="#FBE6FF" CornerRadius="10" Padding="15" Margin="8">
-                        <StackPanel>
-                            <TextBlock Text="Thursday" FontSize="18" FontWeight="Bold" Foreground="#AB47BC" Margin="0,0,0,5"/>
-                            <TextBlock Text="08:30 - IT (Room 108)" Margin="0,3"/>
-                            <TextBlock Text="09:30 - Math (Room 101)" Margin="0,3"/>
-                            <TextBlock Text="10:30 - Science (Room 104)" Margin="0,3"/>
-                            <TextBlock Text="11:30 - English (Room 102)" Margin="0,3"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- FRIDAY -->
-                    <Border Background="#FFE6E6" CornerRadius="10" Padding="15" Margin="8">
-                        <StackPanel>
-                            <TextBlock Text="Friday" FontSize="18" FontWeight="Bold" Foreground="#EF5350" Margin="0,0,0,5"/>
-                            <TextBlock Text="08:30 - Biology (Room 110)" Margin="0,3"/>
-                            <TextBlock Text="09:30 - Music (Room 205)" Margin="0,3"/>
-                            <TextBlock Text="10:30 - Geography (Room 106)" Margin="0,3"/>
-                            <TextBlock Text="11:30 - PE (Gym)" Margin="0,3"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- ANNOUNCEMENTS -->
-                    <Border Background="#E3F2FD" CornerRadius="10" Padding="15" Margin="8">
-                        <StackPanel>
-                            <TextBlock Text="Announcements" FontSize="18" FontWeight="Bold" Foreground="#1976D2" Margin="0,0,0,5"/>
-                            <TextBlock Text="• Math test on Thursday." Margin="0,3"/>
-                            <TextBlock Text="• Bring PE clothes on Tuesday." Margin="0,3"/>
-                            <TextBlock Text="• Submit homework by Friday." Margin="0,3"/>
-                            <TextBlock Text="• Library books due Wednesday." Margin="0,3"/>
-                        </StackPanel>
-                    </Border>
-                </UniformGrid>
-            </ScrollViewer>
-
-            <!-- WEEK SWITCH BUTTON -->
-            <StackPanel Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,20,20">
-                <Button Content="Next Week →" Width="130" Height="35" Background="#2D5CFE" Foreground="White"
-                        FontWeight="Bold" BorderThickness="0"/>
+            <!-- Top control bar (optional) -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,10,10">
+                <Button Content="⏭ Next Week" Padding="10,5" Background="#FFCA28" Foreground="Black" BorderThickness="0" />
             </StackPanel>
+
+            <!-- Schedule Cards Grid -->
+            <UniformGrid Grid.Row="1" Rows="2" Columns="3" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Top" x:Name="ScheduleCards">
+                <!-- Cards will be added dynamically from code-behind -->
+            </UniformGrid>
         </Grid>
     </Grid>
 </Window>

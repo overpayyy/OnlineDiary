@@ -6,10 +6,7 @@ namespace OnlineDiary.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {
-            
-        }
+        
 
         public DbSet<User> Users { get; set; }
         public DbSet<Subject> Subjects { get; set; }
@@ -18,32 +15,19 @@ namespace OnlineDiary.Data
         public DbSet<ScheduleEntry> ScheduleEntries { get; set; }
         public DbSet<Announcement> Announcements { get; set; }
 
-        public static void SeedData(AppDbContext context)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!context.Users.Any())
-            {
-                var teacher = new User
-                {
-                    FirstName = "Maksym",
-                    LastName = "Slipchyshyn",
-                    Email = "slipcisin@gmail.com",
-                    Password = "admin",
-                    Role = "Teacher"
-                };
-
-                var student = new User
-                {
-                    FirstName = "Viktor",
-                    LastName = "Butenko",
-                    Email = "butenko@gmail.com",
-                    Password = "1234",
-                    Role = "Student"
-                };
-
-                context.Users.AddRange(teacher, student);
-                context.SaveChanges();
-            }
+            optionsBuilder.UseSqlite("Data Source=diary.db");
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>().HasData(
+                new User { Id = 1, FirstName = "Maksym", LastName = "Slipchyshyn", Email = "slipchyshyn@gmail.com", Password = "1234", Role = "Student" },
+                new User { Id = 2, FirstName = "Oksana", LastName = "Petrenko", Email = "petrenko@gmail.com", Password = "admin", Role = "Teacher" }
+            );
+        }
+
+       
     }
 }
