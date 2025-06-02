@@ -78,7 +78,8 @@
                             <ComboBoxItem>Friday</ComboBoxItem>
                         </ComboBox>
                         <TextBlock Text="Subject" Margin="0,0,0,5"/>
-                        <TextBox x:Name="SubjectTextBox" Margin="0,0,0,10"/>
+                        <ComboBox x:Name="SubjectComboBoxSchedule" Margin="0,0,0,10"/>
+                        <!-- Новий ComboBox для предметів -->
                         <TextBlock Text="Time (HH:mm)" Margin="0,0,0,5"/>
                         <TextBox x:Name="TimeTextBox" Margin="0,0,0,10"/>
                         <TextBlock Text="Homework" Margin="0,0,0,5"/>
@@ -94,7 +95,7 @@
                 <StackPanel Margin="10">
                     <TextBlock Text="Add Grade" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
                     <TextBlock Text="Student" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="StudentComboBox" Margin="0,0,0,10" SelectionChanged="StudentComboBox_SelectionChanged"/>
+                    <ComboBox x:Name="StudentComboBox" Margin="0,0,0,10"/>
                     <TextBlock Text="Day of Week" Margin="0,0,0,5"/>
                     <ComboBox x:Name="GradeDayComboBox" Margin="0,0,0,10">
                         <ComboBoxItem>Monday</ComboBoxItem>
