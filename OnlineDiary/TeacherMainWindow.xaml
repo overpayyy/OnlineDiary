@@ -1,12 +1,134 @@
 ﻿<Window x:Class="OnlineDiary.TeacherMainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:OnlineDiary"
-        mc:Ignorable="d"
-        Title="TeacherMainWindow" Height="450" Width="800">
+        Title="Teacher Dashboard" Height="600" Width="900"
+        Background="#F5F5F5">
+    <Window.Resources>
+        <!-- Стиль для кнопок -->
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#6200EA"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="8" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#7C4DFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Стиль для карток -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="LightGray"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="5" ShadowDepth="2" Opacity="0.2"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок і кнопка Logout -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button Content="Logout" Click="Logout_Click" Style="{StaticResource ModernButton}"/>
+        </StackPanel>
+
+        <!-- Вкладки -->
+        <TabControl Grid.Row="1" Margin="10" Background="Transparent" BorderThickness="0">
+            <!-- Вкладка Розклад -->
+            <TabItem Header="Schedule">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Форма для створення уроку -->
+                    <StackPanel Grid.Column="0" Margin="10">
+                        <TextBlock Text="Add Lesson" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <TextBlock Text="Day of Week" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="DayComboBox" Margin="0,0,0,10">
+                            <ComboBoxItem>Monday</ComboBoxItem>
+                            <ComboBoxItem>Tuesday</ComboBoxItem>
+                            <ComboBoxItem>Wednesday</ComboBoxItem>
+                            <ComboBoxItem>Thursday</ComboBoxItem>
+                            <ComboBoxItem>Friday</ComboBoxItem>
+                        </ComboBox>
+                        <TextBlock Text="Subject" Margin="0,0,0,5"/>
+                        <TextBox x:Name="SubjectTextBox" Margin="0,0,0,10"/>
+                        <TextBlock Text="Time (HH:mm)" Margin="0,0,0,5"/>
+                        <TextBox x:Name="TimeTextBox" Margin="0,0,0,10"/>
+                        <TextBlock Text="Homework" Margin="0,0,0,5"/>
+                        <TextBox x:Name="HomeworkTextBox" Margin="0,0,0,10" AcceptsReturn="True" Height="60"/>
+                        <Button Content="Add Lesson" Click="AddLesson_Click" Style="{StaticResource ModernButton}"/>
+                    </StackPanel>
+                    <!-- Попередній перегляд розкладу -->
+                    <WrapPanel x:Name="ScheduleCards" Grid.Column="1"/>
+                </Grid>
+            </TabItem>
+            <!-- Вкладка Оцінки -->
+            <TabItem Header="Grades">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Add Grade" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Text="Student" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="StudentComboBox" Margin="0,0,0,10" SelectionChanged="StudentComboBox_SelectionChanged"/>
+                    <TextBlock Text="Day of Week" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="GradeDayComboBox" Margin="0,0,0,10">
+                        <ComboBoxItem>Monday</ComboBoxItem>
+                        <ComboBoxItem>Tuesday</ComboBoxItem>
+                        <ComboBoxItem>Wednesday</ComboBoxItem>
+                        <ComboBoxItem>Thursday</ComboBoxItem>
+                        <ComboBoxItem>Friday</ComboBoxItem>
+                    </ComboBox>
+                    <TextBlock Text="Subject" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="SubjectComboBox" Margin="0,0,0,10"/>
+                    <TextBlock Text="Grade (1-12)" Margin="0,0,0,5"/>
+                    <TextBox x:Name="GradeTextBox" Margin="0,0,0,10"/>
+                    <TextBlock Text="Description" Margin="0,0,0,5"/>
+                    <TextBox x:Name="DescriptionTextBox" Margin="0,0,0,10" AcceptsReturn="True" Height="60"/>
+                    <Button Content="Add Grade" Click="AddGrade_Click" Style="{StaticResource ModernButton}"/>
+                </StackPanel>
+            </TabItem>
+            <!-- Вкладка Оголошення -->
+            <TabItem Header="Announcements">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Add Announcement" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Text="Week Start Date" Margin="0,0,0,5"/>
+                    <DatePicker x:Name="WeekStartDatePicker" Margin="0,0,0,10"/>
+                    <TextBlock Text="Announcement Text" Margin="0,0,0,5"/>
+                    <TextBox x:Name="AnnouncementTextBox" Margin="0,0,0,10" AcceptsReturn="True" Height="100"/>
+                    <Button Content="Add Announcement" Click="AddAnnouncement_Click" Style="{StaticResource ModernButton}"/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <!-- Навігація по тижнях -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+            <Button Content="Last Week" Click="LastWeek_Click" Style="{StaticResource ModernButton}" Width="100"/>
+            <Button Content="Next Week" Click="NextWeek_Click" Style="{StaticResource ModernButton}" Width="100"/>
+        </StackPanel>
     </Grid>
 </Window>

@@ -23,5 +23,7 @@ namespace OnlineDiary
         {
             InitializeComponent();
         }
+
+        
     }
 }

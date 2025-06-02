@@ -19,7 +19,7 @@
             <StackPanel VerticalAlignment="Bottom" Margin="10,50,10,20">
                 <TextBlock Text="Logged in as:" FontSize="12" Foreground="#888"/>
                 <TextBlock x:Name="StudentNameTextBlock" FontWeight="Bold"/>
-                <Button Content="Logout" Background="#E57373" Foreground="White" Margin="0,10,0,0"/>
+                <Button Content="Logout" Background="#E57373" Foreground="White" Margin="0,10,0,0" Click="Logout_Click"/>
             </StackPanel>
         </StackPanel>
 
@@ -32,7 +32,8 @@
 
             <!-- Top control bar (optional) -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,10,10">
-                <Button Content="⏭ Next Week" Padding="10,5" Background="#FFCA28" Foreground="Black" BorderThickness="0" />
+                <Button Content="⏭ Last Week" Padding="10,5" Background="#FFCA28" Foreground="Black" BorderThickness="0" Margin="5" Click="LastWeek_Click" />
+                <Button Content="⏭ Next Week" Padding="10,5" Background="#FFCA28" Foreground="Black" BorderThickness="0" Margin="5" Click="NextWeek_Click" />
             </StackPanel>
 
             <!-- Schedule Cards Grid -->
