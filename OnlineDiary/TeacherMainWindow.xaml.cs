@@ -125,7 +125,6 @@ namespace OnlineDiary
         {
             using (var context = new AppDbContext())
             {
-                // Load students
                 var students = context.Users
                     .Where(u => u.Role == "Student")
                     .Select(u => $"{u.FirstName} {u.LastName}")
@@ -140,12 +139,11 @@ namespace OnlineDiary
                     StudentComboBox.Items.Add(student);
                 }
 
-                // Load subjects
                 var subjects = context.Subjects.Select(s => s.Name).ToList();
                 SubjectComboBox.Items.Clear();
                 SubjectComboBoxSchedule.Items.Clear();
                 SubjectFilterComboBox.Items.Clear();
-                SubjectFilterComboBox.Items.Add("All"); // Опція "Всі"
+                SubjectFilterComboBox.Items.Add("All");
                 if (subjects.Count == 0)
                 {
                     MessageBox.Show("No subjects found in the database. Please ensure subjects are seeded.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -177,14 +175,12 @@ namespace OnlineDiary
                         TeacherName = g.Lesson.Teacher != null ? $"{g.Lesson.Teacher.FirstName} {g.Lesson.Teacher.LastName}" : "N/A"
                     });
 
-                // Фільтрація за вибраним предметом
                 if (SubjectFilterComboBox.SelectedItem != null && SubjectFilterComboBox.SelectedItem.ToString() != "All")
                 {
                     string selectedSubject = SubjectFilterComboBox.SelectedItem.ToString();
                     query = query.Where(g => g.SubjectName == selectedSubject);
                 }
 
-                // Сортування за датою від минулих до нових
                 var grades = query
                     .OrderBy(g => g.Date)
                     .ToList();
@@ -223,7 +219,7 @@ namespace OnlineDiary
             };
             stack.Children.Add(dayTitle);
 
-            if (items.Count == 0) // Перевірка, яка викликала помилку
+            if (items.Count == 0)
             {
                 stack.Children.Add(new TextBlock { Text = "No entries", Foreground = Brushes.Gray, FontSize = 14 });
             }
@@ -318,10 +314,8 @@ namespace OnlineDiary
                     return;
                 }
 
-                // Set TeacherId to the current teacher (e.g., Oksana Petrenko with Id = 2)
-                int teacherId = 2; // Hardcoded for now, adjust based on logged-in teacher
+                int teacherId = 2;
 
-                // Debug output to check SubjectId and TeacherId
                 MessageBox.Show($"Adding lesson with SubjectId: {subject.Id}, SubjectName: {subject.Name}, TeacherId: {teacherId}", "Debug Info", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 var lesson = new Lesson
@@ -355,7 +349,6 @@ namespace OnlineDiary
 
         private void AddGrade_Click(object sender, RoutedEventArgs e)
         {
-            // Check if all required fields are filled
             if (StudentComboBox.SelectedItem == null || GradeDayComboBox.SelectedItem == null ||
                 SubjectComboBox.SelectedItem == null || string.IsNullOrEmpty(GradeTextBox.Text))
             {
@@ -363,7 +356,6 @@ namespace OnlineDiary
                 return;
             }
 
-            // Validate grade value as a string
             string gradeText = GradeTextBox.Text.Trim();
             if (string.IsNullOrEmpty(gradeText) || !int.TryParse(gradeText, out int gradeValue) || gradeValue < 1 || gradeValue > 12)
             {
@@ -378,7 +370,6 @@ namespace OnlineDiary
 
             using (var context = new AppDbContext())
             {
-                // Find the student entity
                 var studentEntity = context.Users.FirstOrDefault(u => (u.FirstName + " " + u.LastName) == student);
                 var subjectEntity = context.Subjects.FirstOrDefault(s => s.Name == subject);
                 if (studentEntity == null || subjectEntity == null)
@@ -387,14 +378,12 @@ namespace OnlineDiary
                     return;
                 }
 
-                // Convert the selected day string to DayOfWeek enum
                 if (!Enum.TryParse<DayOfWeek>(day, out var selectedDayOfWeek))
                 {
                     MessageBox.Show("Invalid day selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                // Find the matching lesson using DayOfWeek
                 var lesson = context.Lessons.FirstOrDefault(l =>
                     l.SubjectId == subjectEntity.Id &&
                     l.Date.DayOfWeek == selectedDayOfWeek &&
@@ -407,7 +396,6 @@ namespace OnlineDiary
                     return;
                 }
 
-                // Create and save the new grade
                 var newGrade = new Grade
                 {
                     StudentId = studentEntity.Id,
@@ -421,10 +409,8 @@ namespace OnlineDiary
                 context.SaveChanges();
             }
 
-            // Refresh the grade history
             LoadGradeHistory();
 
-            // Clear input fields
             StudentComboBox.SelectedItem = null;
             GradeDayComboBox.SelectedItem = null;
             SubjectComboBox.SelectedItem = null;

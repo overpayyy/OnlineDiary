@@ -18,13 +18,12 @@ namespace OnlineDiary.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Seed Users
             modelBuilder.Entity<User>().HasData(
                 new User { Id = 1, FirstName = "Maksym", LastName = "Slipchyshyn", Email = "slipchyshyn@gmail.com", Password = "1234", Role = "Student" },
-                new User { Id = 2, FirstName = "Oksana", LastName = "Petrenko", Email = "petrenko@gmail.com", Password = "admin", Role = "Teacher" }
+                new User { Id = 2, FirstName = "Oksana", LastName = "Petrenko", Email = "petrenko@gmail.com", Password = "admin", Role = "Teacher" },
+                new User { Id = 3, FirstName = "Oleh", LastName = "Gorodysko", Email = "gorodysko@gmail.com", Password = "4321", Role = "Student" }
             );
 
-            // Seed Subjects
             modelBuilder.Entity<Subject>().HasData(
                 new Subject { Id = 1, Name = "Mathematics" },
                 new Subject { Id = 2, Name = "Physics" },

@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using OnlineDiary.Data;
 using OnlineDiary.Models;
 
@@ -26,10 +25,6 @@ namespace OnlineDiary
                 return;
             }
 
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite("Data Source=diary.db")
-                .Options;
-
             using (var context = new AppDbContext())
             {
                 var user = context.Users
@@ -39,7 +34,7 @@ namespace OnlineDiary
                 {
                     if (user.Role == "Student")
                     {
-                        StudentMainWindow studentWindow = new StudentMainWindow();
+                        StudentMainWindow studentWindow = new StudentMainWindow(user.Id);
                         studentWindow.Show();
                         this.Close();
                     }

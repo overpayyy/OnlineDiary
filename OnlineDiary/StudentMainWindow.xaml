@@ -8,7 +8,6 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Left Panel -->
         <StackPanel Background="#F6F7FA" Grid.Column="0">
             <TextBlock Text="Online Diary" FontSize="20" FontWeight="Bold"
                        Margin="20,30,0,20" Foreground="#333"/>
@@ -23,22 +22,18 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- Main Content Area -->
         <Grid Grid.Column="1" Background="White" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Top control bar (optional) -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,10,10">
                 <Button Content="⏭ Last Week" Padding="10,5" Background="#FFCA28" Foreground="Black" BorderThickness="0" Margin="5" Click="LastWeek_Click" />
                 <Button Content="⏭ Next Week" Padding="10,5" Background="#FFCA28" Foreground="Black" BorderThickness="0" Margin="5" Click="NextWeek_Click" />
             </StackPanel>
 
-            <!-- Schedule Cards Grid -->
             <UniformGrid Grid.Row="1" Rows="2" Columns="3" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Top" x:Name="ScheduleCards">
-                <!-- Cards will be added dynamically from code-behind -->
             </UniformGrid>
         </Grid>
     </Grid>
