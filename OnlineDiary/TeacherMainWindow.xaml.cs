@@ -18,6 +18,7 @@ namespace OnlineDiary
         public TeacherMainWindow()
         {
             InitializeComponent();
+            WindowState = WindowState.Maximized;
             currentWeekStart = GetStartOfWeek(DateTime.Today);
             grades = new List<(string, string, string, string, string)>();
             LoadSchedule(currentWeekStart);
@@ -34,7 +35,17 @@ namespace OnlineDiary
 
         private void LoadSchedule(DateTime weekStart)
         {
-            ScheduleCards.Children.Clear();
+            // Clear existing cards
+            var scheduleCards = FindName("ScheduleCards") as WrapPanel;
+            if (scheduleCards != null)
+            {
+                scheduleCards.Children.Clear();
+            }
+            else
+            {
+                // Log or handle the case where ScheduleCards is not found
+                return;
+            }
 
             List<string> days = new List<string> { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" };
 
@@ -48,24 +59,35 @@ namespace OnlineDiary
                         .Include(l => l.Teacher)
                         .Where(l => l.Date.Date == date.Date)
                         .OrderBy(l => l.Time)
-                        .Select(l => new {
+                        .Select(l => new
+                        {
                             l.Id,
                             Text = $"{l.Subject.Name} at {DateTime.Parse(l.Time).ToString("hh:mm")}" +
-                                    (string.IsNullOrEmpty(l.Homework) ? "" : $"\nHomework: {l.Homework}") +
-                                    (l.Teacher != null ? $"\nTeacher: {l.Teacher.FirstName} {l.Teacher.LastName}" : "")
+                                   (string.IsNullOrEmpty(l.Homework) ? "" : $"\nHomework: {l.Homework}") +
+                                   (l.Teacher != null ? $"\nTeacher: {l.Teacher.FirstName} {l.Teacher.LastName}" : "")
                         })
                         .ToList();
 
                     string title = $"{days[i]} ({date:dd.MM.yyyy})";
                     var card = CreateDayCard(title, lessons, true);
-                    ScheduleCards.Children.Add(card);
+                    scheduleCards.Children.Add(card);
                 }
             }
         }
 
         private void LoadGradesSchedule(DateTime weekStart)
         {
-            GradesScheduleCards.Children.Clear();
+            // Clear existing cards
+            var gradesScheduleCards = FindName("GradesScheduleCards") as WrapPanel;
+            if (gradesScheduleCards != null)
+            {
+                gradesScheduleCards.Children.Clear();
+            }
+            else
+            {
+                // Log or handle the case where GradesScheduleCards is not found
+                return;
+            }
 
             List<string> days = new List<string> { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" };
 
@@ -79,16 +101,17 @@ namespace OnlineDiary
                         .Include(l => l.Teacher)
                         .Where(l => l.Date.Date == date.Date)
                         .OrderBy(l => l.Time)
-                        .Select(l => new {
+                        .Select(l => new
+                        {
                             l.Id,
                             Text = $"{l.Subject.Name} at {DateTime.Parse(l.Time).ToString("hh:mm")}" +
-                                    (l.Teacher != null ? $"\nTeacher: {l.Teacher.FirstName} {l.Teacher.LastName}" : "")
+                                   (l.Teacher != null ? $"\nTeacher: {l.Teacher.FirstName} {l.Teacher.LastName}" : "")
                         })
                         .ToList();
 
                     string title = $"{days[i]} ({date:dd.MM.yyyy})";
-                    var card = CreateDayCard(title, lessons);
-                    GradesScheduleCards.Children.Add(card);
+                    var card = CreateDayCard(title, lessons, true); // true for lesson cards with delete option
+                    gradesScheduleCards.Children.Add(card);
                 }
             }
         }
@@ -116,6 +139,8 @@ namespace OnlineDiary
                 var subjects = context.Subjects.Select(s => s.Name).ToList();
                 SubjectComboBox.Items.Clear();
                 SubjectComboBoxSchedule.Items.Clear();
+                SubjectFilterComboBox.Items.Clear();
+                SubjectFilterComboBox.Items.Add("All"); // Опція "Всі"
                 if (subjects.Count == 0)
                 {
                     MessageBox.Show("No subjects found in the database. Please ensure subjects are seeded.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -124,6 +149,7 @@ namespace OnlineDiary
                 {
                     SubjectComboBox.Items.Add(subject);
                     SubjectComboBoxSchedule.Items.Add(subject);
+                    SubjectFilterComboBox.Items.Add(subject);
                 }
             }
         }
@@ -132,7 +158,7 @@ namespace OnlineDiary
         {
             using (var context = new AppDbContext())
             {
-                var grades = context.Grades
+                var query = context.Grades
                     .Include(g => g.Student)
                     .Include(g => g.Lesson).ThenInclude(l => l.Subject)
                     .Include(g => g.Lesson).ThenInclude(l => l.Teacher)
@@ -144,24 +170,41 @@ namespace OnlineDiary
                         SubjectName = g.Lesson.Subject.Name,
                         g.Value,
                         TeacherName = g.Lesson.Teacher != null ? $"{g.Lesson.Teacher.FirstName} {g.Lesson.Teacher.LastName}" : "N/A"
-                    })
+                    });
+
+                // Фільтрація за вибраним предметом
+                if (SubjectFilterComboBox.SelectedItem != null && SubjectFilterComboBox.SelectedItem.ToString() != "All")
+                {
+                    string selectedSubject = SubjectFilterComboBox.SelectedItem.ToString();
+                    query = query.Where(g => g.SubjectName == selectedSubject);
+                }
+
+                // Сортування за датою від минулих до нових
+                var grades = query
+                    .OrderBy(g => g.Date)
                     .ToList();
+
                 GradesDataGrid.ItemsSource = grades;
             }
+        }
+
+        private void SubjectFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            LoadGradeHistory();
         }
 
         private Border CreateDayCard(string title, dynamic items, bool isLessonCard = false)
         {
             var card = new Border
             {
-                BorderThickness = new Thickness(1),
+                BorderThickness = new Thickness(2),
                 BorderBrush = Brushes.LightGray,
-                CornerRadius = new CornerRadius(12),
-                Margin = new Thickness(10),
-                Width = 220,
+                CornerRadius = new CornerRadius(15),
+                Margin = new Thickness(15),
+                Width = 300,
                 Background = Brushes.White,
-                Padding = new Thickness(10),
-                Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 5, ShadowDepth = 2, Opacity = 0.2 }
+                Padding = new Thickness(15),
+                Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 8, ShadowDepth = 3, Opacity = 0.3 }
             };
 
             var stack = new StackPanel();
@@ -169,15 +212,15 @@ namespace OnlineDiary
             var dayTitle = new TextBlock
             {
                 Text = title,
-                FontSize = 16,
+                FontSize = 18,
                 FontWeight = FontWeights.Bold,
-                Margin = new Thickness(0, 0, 0, 10)
+                Margin = new Thickness(0, 0, 0, 15)
             };
             stack.Children.Add(dayTitle);
 
             if (items.Count == 0)
             {
-                stack.Children.Add(new TextBlock { Text = "No entries", Foreground = Brushes.Gray });
+                stack.Children.Add(new TextBlock { Text = "No entries", Foreground = Brushes.Gray, FontSize = 14 });
             }
 
             foreach (var item in items)
@@ -185,11 +228,11 @@ namespace OnlineDiary
                 var itemStack = new StackPanel { Orientation = Orientation.Horizontal };
                 var text = new TextBlock
                 {
-                    Text = "• " + item.Text,
-                    FontSize = 13,
-                    Margin = new Thickness(0, 2, 0, 2),
+                    Text = item is string ? item : item.Text,
+                    FontSize = 15,
+                    Margin = new Thickness(0, 5, 10, 5),
                     TextWrapping = TextWrapping.Wrap,
-                    Width = 180
+                    MaxWidth = 250
                 };
                 itemStack.Children.Add(text);
 
@@ -197,11 +240,12 @@ namespace OnlineDiary
                 {
                     var deleteButton = new Button
                     {
-                        Content = "Delete",
                         Style = FindResource("DeleteButton") as Style,
-                        Tag = item.Id,
-                        Margin = new Thickness(5, 2, 0, 2),
-                        Padding = new Thickness(5, 2, 5, 2)
+                        Tag = item is string ? null : item.Id,
+                        Margin = new Thickness(0, 5, 0, 5),
+                        Width = 30,
+                        Height = 30,
+                        VerticalAlignment = VerticalAlignment.Top
                     };
                     deleteButton.Click += DeleteLesson_Click;
                     itemStack.Children.Add(deleteButton);
@@ -306,15 +350,19 @@ namespace OnlineDiary
 
         private void AddGrade_Click(object sender, RoutedEventArgs e)
         {
-            if (StudentComboBox.SelectedItem == null || GradeDayComboBox.SelectedItem == null || SubjectComboBox.SelectedItem == null || string.IsNullOrEmpty(GradeTextBox.Text))
+            // Check if all required fields are filled
+            if (StudentComboBox.SelectedItem == null || GradeDayComboBox.SelectedItem == null ||
+                SubjectComboBox.SelectedItem == null || string.IsNullOrEmpty(GradeTextBox.Text))
             {
                 MessageBox.Show("Please fill in all required fields (Student, Day, Subject, Grade).", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            if (!int.TryParse(GradeTextBox.Text, out int grade) || grade < 1 || grade > 12)
+            // Validate grade value as a string
+            string gradeText = GradeTextBox.Text.Trim();
+            if (string.IsNullOrEmpty(gradeText) || !int.TryParse(gradeText, out int gradeValue) || gradeValue < 1 || gradeValue > 12)
             {
-                MessageBox.Show("Grade must be a number between 1 and 12.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Grade must be a valid number between 1 and 12.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -323,17 +371,60 @@ namespace OnlineDiary
             string subject = SubjectComboBox.SelectedItem.ToString();
             string description = DescriptionTextBox.Text;
 
-            grades.Add((student, day, subject, grade.ToString(), description));
+            using (var context = new AppDbContext())
+            {
+                // Find the student entity
+                var studentEntity = context.Users.FirstOrDefault(u => (u.FirstName + " " + u.LastName) == student);
+                var subjectEntity = context.Subjects.FirstOrDefault(s => s.Name == subject);
+                if (studentEntity == null || subjectEntity == null)
+                {
+                    MessageBox.Show("Student or subject not found in the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
-            var gradeCard = CreateDayCard($"Grade for {student} ({day})", new List<string> { $"{subject}: {grade} - {description}" });
-            GradesScheduleCards.Children.Add(gradeCard);
+                // Convert the selected day string to DayOfWeek enum
+                if (!Enum.TryParse<DayOfWeek>(day, out var selectedDayOfWeek))
+                {
+                    MessageBox.Show("Invalid day selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
+                // Find the matching lesson using DayOfWeek
+                var lesson = context.Lessons.FirstOrDefault(l =>
+                    l.SubjectId == subjectEntity.Id &&
+                    l.Date.DayOfWeek == selectedDayOfWeek &&
+                    l.Date.Date >= currentWeekStart &&
+                    l.Date.Date < currentWeekStart.AddDays(7));
+
+                if (lesson == null)
+                {
+                    MessageBox.Show("No matching lesson found for the selected day and subject.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Create and save the new grade
+                var newGrade = new Grade
+                {
+                    StudentId = studentEntity.Id,
+                    LessonId = lesson.Id,
+                    Value = gradeText,
+                    DateAdded = DateTime.Now,
+                    Description = description
+                };
+
+                context.Grades.Add(newGrade);
+                context.SaveChanges();
+            }
+
+            // Refresh the grade history
+            LoadGradeHistory();
+
+            // Clear input fields
             StudentComboBox.SelectedItem = null;
             GradeDayComboBox.SelectedItem = null;
             SubjectComboBox.SelectedItem = null;
             GradeTextBox.Clear();
             DescriptionTextBox.Clear();
-            LoadGradeHistory();
             MessageBox.Show("Grade added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

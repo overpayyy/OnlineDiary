@@ -10,5 +10,8 @@
 
         public int StudentId { get; set; }
         public User Student { get; set; }
+
+        public DateTime DateAdded { get; set; }
+        public string Description { get; set; }
     }
 }
