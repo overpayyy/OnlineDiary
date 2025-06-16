@@ -35,7 +35,6 @@ namespace OnlineDiary
 
         private void LoadSchedule(DateTime weekStart)
         {
-            // Clear existing cards
             var scheduleCards = FindName("ScheduleCards") as WrapPanel;
             if (scheduleCards != null)
             {
@@ -43,7 +42,6 @@ namespace OnlineDiary
             }
             else
             {
-                // Log or handle the case where ScheduleCards is not found
                 return;
             }
 
@@ -58,14 +56,23 @@ namespace OnlineDiary
                         .Include(l => l.Subject)
                         .Include(l => l.Teacher)
                         .Where(l => l.Date.Date == date.Date)
-                        .OrderBy(l => l.Time)
                         .Select(l => new
                         {
                             l.Id,
+                            Time = l.Time,
                             Text = $"{l.Subject.Name} at {DateTime.Parse(l.Time).ToString("hh:mm")}" +
                                    (string.IsNullOrEmpty(l.Homework) ? "" : $"\nHomework: {l.Homework}") +
                                    (l.Teacher != null ? $"\nTeacher: {l.Teacher.FirstName} {l.Teacher.LastName}" : "")
                         })
+                        .ToList()
+                        .Select(l => new
+                        {
+                            l.Id,
+                            l.Time,
+                            ParsedTime = DateTime.TryParse(l.Time, out DateTime time) ? time : DateTime.MinValue,
+                            l.Text
+                        })
+                        .OrderBy(l => l.ParsedTime)
                         .ToList();
 
                     string title = $"{days[i]} ({date:dd.MM.yyyy})";
@@ -77,7 +84,6 @@ namespace OnlineDiary
 
         private void LoadGradesSchedule(DateTime weekStart)
         {
-            // Clear existing cards
             var gradesScheduleCards = FindName("GradesScheduleCards") as WrapPanel;
             if (gradesScheduleCards != null)
             {
@@ -85,7 +91,6 @@ namespace OnlineDiary
             }
             else
             {
-                // Log or handle the case where GradesScheduleCards is not found
                 return;
             }
 
@@ -110,7 +115,7 @@ namespace OnlineDiary
                         .ToList();
 
                     string title = $"{days[i]} ({date:dd.MM.yyyy})";
-                    var card = CreateDayCard(title, lessons, true); // true for lesson cards with delete option
+                    var card = CreateDayCard(title, lessons, true);
                     gradesScheduleCards.Children.Add(card);
                 }
             }
@@ -218,7 +223,7 @@ namespace OnlineDiary
             };
             stack.Children.Add(dayTitle);
 
-            if (items.Count == 0)
+            if (items.Count == 0) // Перевірка, яка викликала помилку
             {
                 stack.Children.Add(new TextBlock { Text = "No entries", Foreground = Brushes.Gray, FontSize = 14 });
             }
