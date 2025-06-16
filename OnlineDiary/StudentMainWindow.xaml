@@ -13,8 +13,6 @@
                        Margin="20,30,0,20" Foreground="#333"/>
             <Button Content="📅 Schedule" Name="ScheduleButton" Margin="10,5" Padding="10"
                     Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Left" Click="ScheduleButton_Click"/>
-            <Button Content="⭐ Grades" Name="GradesButton" Margin="10,5" Padding="10"
-                    Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Left" Click="GradesButton_Click"/>
             <StackPanel VerticalAlignment="Bottom" Margin="10,50,10,20">
                 <TextBlock Text="Logged in as:" FontSize="12" Foreground="#888"/>
                 <TextBlock x:Name="StudentNameTextBlock" FontWeight="Bold"/>

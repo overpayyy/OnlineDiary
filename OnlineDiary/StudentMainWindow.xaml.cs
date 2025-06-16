@@ -89,108 +89,6 @@ public partial class StudentMainWindow : Window
         }
     }
 
-    private void LoadGrades(DateTime weekStart)
-    {
-        if (isScheduleView) return;
-
-        var grid = new DataGrid
-        {
-            Margin = new Thickness(10),
-            AutoGenerateColumns = false,
-            IsReadOnly = true
-        };
-
-        grid.Columns.Add(new DataGridTextColumn
-        {
-            Header = "Subject",
-            Binding = new System.Windows.Data.Binding("SubjectName"),
-            Width = new DataGridLength(1, DataGridLengthUnitType.Star)
-        });
-
-        List<DateTime> dates = new List<DateTime>();
-        for (int i = 0; i < 5; i++)
-        {
-            dates.Add(weekStart.AddDays(i).Date);
-        }
-        string dateHeaders = string.Join(", ", dates.Select(d => d.ToString("dd.MM.yyyy")));
-        Console.WriteLine($"Dates for week: {dateHeaders}");
-
-        using (var context = new AppDbContext())
-        {
-            try
-            {
-                var lessonsWithGrades = context.Lessons
-                    .Include(l => l.Subject)
-                    .Include(l => l.Grades)
-                    .ThenInclude(g => g.Student)
-                    .Where(l => dates.Contains(l.Date.Date))
-                    .Select(l => new
-                    {
-                        l.Subject.Name,
-                        l.Date,
-                        Grades = l.Grades.Where(g => g.StudentId == currentStudentId)
-                                       .Select(g => new { g.Value, LessonDate = g.Lesson.Date.Date })
-                                       .ToList()
-                    })
-                    .ToList();
-
-                Console.WriteLine($"Found {lessonsWithGrades.Count} lessons with grades for student ID {currentStudentId}:");
-                if (lessonsWithGrades.Count == 0)
-                {
-                    Console.WriteLine("No lessons found for the given dates.");
-                }
-                else
-                {
-                    foreach (var lesson in lessonsWithGrades)
-                    {
-                        Console.WriteLine($"Subject: {lesson.Name}, Date: {lesson.Date:dd.MM.yyyy}, Grades: {string.Join(", ", lesson.Grades.Select(g => g.Value ?? "null"))}");
-                    }
-                }
-
-                foreach (var date in dates)
-                {
-                    var dateStr = date.ToString("dd.MM.yyyy");
-                    var column = new DataGridTextColumn
-                    {
-                        Header = dateStr,
-                        Binding = new System.Windows.Data.Binding($"Grades[{dateStr}]") { Converter = new GradeConverter() },
-                        Width = new DataGridLength(1, DataGridLengthUnitType.Star)
-                    };
-                    grid.Columns.Add(column);
-                }
-
-                var subjects = lessonsWithGrades.Select(l => l.Name).Distinct().ToList();
-                var gradeData = subjects.Select(subject => new
-                {
-                    SubjectName = subject,
-                    Grades = lessonsWithGrades
-                        .Where(l => l.Name == subject)
-                        .SelectMany(l => l.Grades)
-                        .GroupBy(g => g.LessonDate.ToString("dd.MM.yyyy"))
-                        .ToDictionary(
-                            g => g.Key,
-                            g => g.Select(x => x.Value).FirstOrDefault() ?? "-"
-                        )
-                }).ToList();
-
-                Console.WriteLine("GradeData:");
-                foreach (var item in gradeData)
-                {
-                    Console.WriteLine($"Subject: {item.SubjectName}, Grades: {string.Join(", ", item.Grades.Select(kv => $"{kv.Key}: {kv.Value}"))}");
-                }
-
-                grid.ItemsSource = gradeData;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in LoadGrades: {ex.Message}");
-            }
-        }
-
-        MainContent.Content = grid;
-        Console.WriteLine("LoadGrades completed.");
-    }
-
     private Border CreateDayCard(string title, List<(string SubjectTime, string Homework, List<string> Grades)> items)
     {
         var card = new Border
@@ -199,9 +97,10 @@ public partial class StudentMainWindow : Window
             BorderBrush = Brushes.LightGray,
             CornerRadius = new CornerRadius(12),
             Margin = new Thickness(10),
-            Width = 220,
+            Width = 300,
+            Height = 250,
             Background = Brushes.White,
-            Padding = new Thickness(10),
+            Padding = new Thickness(15),
         };
 
         var stack = new StackPanel();
@@ -209,7 +108,7 @@ public partial class StudentMainWindow : Window
         var dayTitle = new TextBlock
         {
             Text = title,
-            FontSize = 16,
+            FontSize = 18,
             FontWeight = FontWeights.Bold,
             Margin = new Thickness(0, 2, 0, 10)
         };
@@ -226,7 +125,7 @@ public partial class StudentMainWindow : Window
                 var subjectText = new TextBlock
                 {
                     Text = "• " + item.SubjectTime,
-                    FontSize = 13,
+                    FontSize = 14,
                     Margin = new Thickness(0, 2, 0, 2)
                 };
                 stack.Children.Add(subjectText);
@@ -236,7 +135,7 @@ public partial class StudentMainWindow : Window
                     var homeworkText = new TextBlock
                     {
                         Text = "  - Homework: " + item.Homework,
-                        FontSize = 12,
+                        FontSize = 13,
                         Margin = new Thickness(0, 2, 0, 2),
                         Foreground = Brushes.DarkGreen
                     };
@@ -250,7 +149,7 @@ public partial class StudentMainWindow : Window
                         var gradeText = new TextBlock
                         {
                             Text = $"  - {grade}",
-                            FontSize = 12,
+                            FontSize = 13,
                             Margin = new Thickness(0, 2, 0, 2),
                             Foreground = Brushes.DarkBlue
                         };
@@ -267,15 +166,13 @@ public partial class StudentMainWindow : Window
     private void NextWeek_Click(object sender, RoutedEventArgs e)
     {
         currentWeekStart = currentWeekStart.AddDays(7);
-        if (isScheduleView) LoadSchedule(currentWeekStart);
-        else LoadGrades(currentWeekStart);
+        LoadSchedule(currentWeekStart);
     }
 
     private void LastWeek_Click(object sender, RoutedEventArgs e)
     {
         currentWeekStart = currentWeekStart.AddDays(-7);
-        if (isScheduleView) LoadSchedule(currentWeekStart);
-        else LoadGrades(currentWeekStart);
+        LoadSchedule(currentWeekStart);
     }
 
     private void Logout_Click(object sender, RoutedEventArgs e)
@@ -290,28 +187,5 @@ public partial class StudentMainWindow : Window
         isScheduleView = true;
         MainContent.Content = ScheduleCards;
         LoadSchedule(currentWeekStart);
-    }
-
-    private void GradesButton_Click(object sender, RoutedEventArgs e)
-    {
-        isScheduleView = false;
-        LoadGrades(currentWeekStart);
-    }
-}
-
-public class GradeConverter : System.Windows.Data.IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-    {
-        if (value is Dictionary<string, string> grades && parameter is string date)
-        {
-            return grades.ContainsKey(date) ? grades[date] : "-";
-        }
-        return "-";
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-    {
-        throw new NotImplementedException();
     }
 }
