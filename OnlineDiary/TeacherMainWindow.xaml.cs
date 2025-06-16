@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.EntityFrameworkCore;
 using OnlineDiary.Data;
-using OnlineDiary;
 using OnlineDiary.Models;
 
 namespace OnlineDiary
@@ -23,6 +22,8 @@ namespace OnlineDiary
             grades = new List<(string, string, string, string, string)>();
             LoadSchedule(currentWeekStart);
             LoadStudentsAndSubjects();
+            LoadGradesSchedule(currentWeekStart);
+            LoadGradeHistory();
         }
 
         private DateTime GetStartOfWeek(DateTime date)
@@ -43,51 +44,82 @@ namespace OnlineDiary
                 {
                     DateTime date = weekStart.AddDays(i);
                     var lessons = context.Lessons
+                        .Include(l => l.Subject)
+                        .Include(l => l.Teacher)
                         .Where(l => l.Date.Date == date.Date)
                         .OrderBy(l => l.Time)
-                        .Select(l => $"{l.Subject.Name} at {DateTime.Parse(l.Time).ToString("hh:mm")}" +
-                                    (string.IsNullOrEmpty(l.Homework) ? "" : $"\nHomework: {l.Homework}"))
+                        .Select(l => new {
+                            l.Id,
+                            Text = $"{l.Subject.Name} at {DateTime.Parse(l.Time).ToString("hh:mm")}" +
+                                    (string.IsNullOrEmpty(l.Homework) ? "" : $"\nHomework: {l.Homework}") +
+                                    (l.Teacher != null ? $"\nTeacher: {l.Teacher.FirstName} {l.Teacher.LastName}" : "")
+                        })
+                        .ToList();
+
+                    string title = $"{days[i]} ({date:dd.MM.yyyy})";
+                    var card = CreateDayCard(title, lessons, true);
+                    ScheduleCards.Children.Add(card);
+                }
+            }
+        }
+
+        private void LoadGradesSchedule(DateTime weekStart)
+        {
+            GradesScheduleCards.Children.Clear();
+
+            List<string> days = new List<string> { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" };
+
+            using (var context = new AppDbContext())
+            {
+                for (int i = 0; i < days.Count; i++)
+                {
+                    DateTime date = weekStart.AddDays(i);
+                    var lessons = context.Lessons
+                        .Include(l => l.Subject)
+                        .Include(l => l.Teacher)
+                        .Where(l => l.Date.Date == date.Date)
+                        .OrderBy(l => l.Time)
+                        .Select(l => new {
+                            l.Id,
+                            Text = $"{l.Subject.Name} at {DateTime.Parse(l.Time).ToString("hh:mm")}" +
+                                    (l.Teacher != null ? $"\nTeacher: {l.Teacher.FirstName} {l.Teacher.LastName}" : "")
+                        })
                         .ToList();
 
                     string title = $"{days[i]} ({date:dd.MM.yyyy})";
                     var card = CreateDayCard(title, lessons);
-                    ScheduleCards.Children.Add(card);
+                    GradesScheduleCards.Children.Add(card);
                 }
-
-                var notes = context.Announcements
-                    .Where(a => a.WeekStart == weekStart)
-                    .Select(a => a.Text)
-                    .ToList();
-
-                var notesCard = CreateDayCard("Notes", notes);
-                ScheduleCards.Children.Add(notesCard);
             }
         }
 
         private void LoadStudentsAndSubjects()
         {
-            // Заповнення StudentComboBox імена та прізвища
-            StudentComboBox.Items.Clear();
-            StudentComboBox.Items.Add("John Doe");
-            StudentComboBox.Items.Add("Jane Smith");
-            StudentComboBox.Items.Add("Alex Brown");
-
-            // Заповнення SubjectComboBox і SubjectComboBoxSchedule однаковими значеннями
-            SubjectComboBox.Items.Clear();
-            SubjectComboBoxSchedule.Items.Clear();
-            SubjectComboBox.Items.Add("Math");
-            SubjectComboBox.Items.Add("Physics");
-            SubjectComboBox.Items.Add("English");
-            SubjectComboBoxSchedule.Items.Add("Math");
-            SubjectComboBoxSchedule.Items.Add("Physics");
-            SubjectComboBoxSchedule.Items.Add("English");
-
-            // (Опціонально) Завантаження з бази даних, якщо є таблиця Subjects
             using (var context = new AppDbContext())
             {
+                // Load students
+                var students = context.Users
+                    .Where(u => u.Role == "Student")
+                    .Select(u => $"{u.FirstName} {u.LastName}")
+                    .ToList();
+                StudentComboBox.Items.Clear();
+                if (students.Count == 0)
+                {
+                    MessageBox.Show("No students found in the database. Please ensure users are seeded.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                foreach (var student in students)
+                {
+                    StudentComboBox.Items.Add(student);
+                }
+
+                // Load subjects
                 var subjects = context.Subjects.Select(s => s.Name).ToList();
                 SubjectComboBox.Items.Clear();
                 SubjectComboBoxSchedule.Items.Clear();
+                if (subjects.Count == 0)
+                {
+                    MessageBox.Show("No subjects found in the database. Please ensure subjects are seeded.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
                 foreach (var subject in subjects)
                 {
                     SubjectComboBox.Items.Add(subject);
@@ -96,7 +128,29 @@ namespace OnlineDiary
             }
         }
 
-        private Border CreateDayCard(string title, List<string> items)
+        private void LoadGradeHistory()
+        {
+            using (var context = new AppDbContext())
+            {
+                var grades = context.Grades
+                    .Include(g => g.Student)
+                    .Include(g => g.Lesson).ThenInclude(l => l.Subject)
+                    .Include(g => g.Lesson).ThenInclude(l => l.Teacher)
+                    .Select(g => new
+                    {
+                        g.Id,
+                        StudentName = $"{g.Student.FirstName} {g.Student.LastName}",
+                        Date = g.Lesson.Date,
+                        SubjectName = g.Lesson.Subject.Name,
+                        g.Value,
+                        TeacherName = g.Lesson.Teacher != null ? $"{g.Lesson.Teacher.FirstName} {g.Lesson.Teacher.LastName}" : "N/A"
+                    })
+                    .ToList();
+                GradesDataGrid.ItemsSource = grades;
+            }
+        }
+
+        private Border CreateDayCard(string title, dynamic items, bool isLessonCard = false)
         {
             var card = new Border
             {
@@ -128,18 +182,59 @@ namespace OnlineDiary
 
             foreach (var item in items)
             {
+                var itemStack = new StackPanel { Orientation = Orientation.Horizontal };
                 var text = new TextBlock
                 {
-                    Text = "• " + item,
+                    Text = "• " + item.Text,
                     FontSize = 13,
                     Margin = new Thickness(0, 2, 0, 2),
-                    TextWrapping = TextWrapping.Wrap
+                    TextWrapping = TextWrapping.Wrap,
+                    Width = 180
                 };
-                stack.Children.Add(text);
+                itemStack.Children.Add(text);
+
+                if (isLessonCard)
+                {
+                    var deleteButton = new Button
+                    {
+                        Content = "Delete",
+                        Style = FindResource("DeleteButton") as Style,
+                        Tag = item.Id,
+                        Margin = new Thickness(5, 2, 0, 2),
+                        Padding = new Thickness(5, 2, 5, 2)
+                    };
+                    deleteButton.Click += DeleteLesson_Click;
+                    itemStack.Children.Add(deleteButton);
+                }
+
+                stack.Children.Add(itemStack);
             }
 
             card.Child = stack;
             return card;
+        }
+
+        private void DeleteLesson_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is int lessonId)
+            {
+                var result = MessageBox.Show("Are you sure you want to delete this lesson?", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.Yes)
+                {
+                    using (var context = new AppDbContext())
+                    {
+                        var lesson = context.Lessons.Find(lessonId);
+                        if (lesson != null)
+                        {
+                            context.Lessons.Remove(lesson);
+                            context.SaveChanges();
+                            LoadSchedule(currentWeekStart);
+                            LoadGradesSchedule(currentWeekStart);
+                            MessageBox.Show("Lesson deleted successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                    }
+                }
+            }
         }
 
         private void AddLesson_Click(object sender, RoutedEventArgs e)
@@ -152,7 +247,11 @@ namespace OnlineDiary
 
             string selectedDay = (DayComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             int dayOffset = new List<string> { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" }.IndexOf(selectedDay);
-            if (dayOffset == -1) return;
+            if (dayOffset == -1)
+            {
+                MessageBox.Show("Invalid day selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             if (!DateTime.TryParse(TimeTextBox.Text, out DateTime time))
             {
@@ -166,23 +265,39 @@ namespace OnlineDiary
                 var subject = context.Subjects.FirstOrDefault(s => s.Name == subjectName);
                 if (subject == null)
                 {
-                    subject = new Subject { Name = subjectName };
-                    context.Subjects.Add(subject);
-                    context.SaveChanges();
+                    MessageBox.Show($"Selected subject '{subjectName}' does not exist in the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
+
+                // Set TeacherId to the current teacher (e.g., Oksana Petrenko with Id = 2)
+                int teacherId = 2; // Hardcoded for now, adjust based on logged-in teacher
+
+                // Debug output to check SubjectId and TeacherId
+                MessageBox.Show($"Adding lesson with SubjectId: {subject.Id}, SubjectName: {subject.Name}, TeacherId: {teacherId}", "Debug Info", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 var lesson = new Lesson
                 {
                     Date = currentWeekStart.AddDays(dayOffset),
-                    Subject = subject,
+                    SubjectId = subject.Id,
+                    TeacherId = teacherId,
                     Time = TimeTextBox.Text,
                     Homework = HomeworkTextBox.Text
                 };
-                context.Lessons.Add(lesson);
-                context.SaveChanges();
+
+                try
+                {
+                    context.Lessons.Add(lesson);
+                    context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to add lesson. Error: {ex.Message}\nInner Exception: {ex.InnerException?.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
             }
 
             LoadSchedule(currentWeekStart);
+            LoadGradesSchedule(currentWeekStart);
             SubjectComboBoxSchedule.SelectedItem = null;
             TimeTextBox.Clear();
             HomeworkTextBox.Clear();
@@ -211,54 +326,29 @@ namespace OnlineDiary
             grades.Add((student, day, subject, grade.ToString(), description));
 
             var gradeCard = CreateDayCard($"Grade for {student} ({day})", new List<string> { $"{subject}: {grade} - {description}" });
-            ScheduleCards.Children.Add(gradeCard);
+            GradesScheduleCards.Children.Add(gradeCard);
 
             StudentComboBox.SelectedItem = null;
             GradeDayComboBox.SelectedItem = null;
             SubjectComboBox.SelectedItem = null;
             GradeTextBox.Clear();
             DescriptionTextBox.Clear();
+            LoadGradeHistory();
             MessageBox.Show("Grade added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        private void AddAnnouncement_Click(object sender, RoutedEventArgs e)
-        {
-            if (WeekStartDatePicker.SelectedDate == null || string.IsNullOrEmpty(AnnouncementTextBox.Text))
-            {
-                MessageBox.Show("Please select a week start date and enter announcement text.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            using (var context = new AppDbContext())
-            {
-                var announcement = new Announcement
-                {
-                    WeekStart = WeekStartDatePicker.SelectedDate.Value.Date,
-                    Text = AnnouncementTextBox.Text
-                };
-                context.Announcements.Add(announcement);
-                context.SaveChanges();
-            }
-
-            if (WeekStartDatePicker.SelectedDate.Value.Date == currentWeekStart)
-            {
-                LoadSchedule(currentWeekStart);
-            }
-
-            AnnouncementTextBox.Clear();
-            MessageBox.Show("Announcement added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void NextWeek_Click(object sender, RoutedEventArgs e)
         {
             currentWeekStart = currentWeekStart.AddDays(7);
             LoadSchedule(currentWeekStart);
+            LoadGradesSchedule(currentWeekStart);
         }
 
         private void LastWeek_Click(object sender, RoutedEventArgs e)
         {
             currentWeekStart = currentWeekStart.AddDays(-7);
             LoadSchedule(currentWeekStart);
+            LoadGradesSchedule(currentWeekStart);
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)

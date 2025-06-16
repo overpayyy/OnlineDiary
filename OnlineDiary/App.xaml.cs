@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using Microsoft.EntityFrameworkCore;
 using OnlineDiary.Data;
 
 namespace OnlineDiary
@@ -21,11 +20,6 @@ namespace OnlineDiary
         {
             base.OnStartup(e);
             DbInitializer.Initialize();
-
-            using (var context = new AppDbContext())
-            {
-                context.Database.EnsureCreated();
-            }
 
             var roleSelectionWindow = new RoleSelectionWindow();
             roleSelectionWindow.Show();

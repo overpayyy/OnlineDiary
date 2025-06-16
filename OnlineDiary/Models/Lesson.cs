@@ -5,8 +5,8 @@
         public int Id { get; set; }
         public DateTime Date { get; set; }
         public string Time { get; set; }
-        public string Description { get; set; }
-        public string Homework { get; set; }
+        public string? Description { get; set; }
+        public string? Homework { get; set; }
 
         public int SubjectId { get; set; }
         public Subject Subject { get; set; }

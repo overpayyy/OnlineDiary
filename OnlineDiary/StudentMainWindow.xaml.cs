@@ -39,21 +39,13 @@ public partial class StudentMainWindow : Window
                 var lessons = context.Lessons
                     .Where(l => l.Date.Date == date.Date)
                     .OrderBy(l => l.Time)
-                    .Select(l => l.Subject + " at " + DateTime.Parse(l.Time).ToString("hh:mm", System.Globalization.CultureInfo.InvariantCulture))
+                    .Select(l => l.Subject.Name + " at " + DateTime.Parse(l.Time).ToString("hh:mm", System.Globalization.CultureInfo.InvariantCulture))
                     .ToList();
 
                 string title = $"{days[i]} ({date:dd.MM.yyyy})";
                 var card = CreateDayCard(title, lessons);
                 ScheduleCards.Children.Add(card);
             }
-
-            var notes = context.Announcements
-                .Where(a => a.WeekStart == weekStart)
-                .Select(a => a.Text)
-                .ToList();
-
-            var notesCard = CreateDayCard("Notes", notes);
-            ScheduleCards.Children.Add(notesCard);
         }
     }
 

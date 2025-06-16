@@ -4,7 +4,7 @@
         Title="Teacher Dashboard" Height="600" Width="900"
         Background="#F5F5F5">
     <Window.Resources>
-        <!-- Стиль для кнопок -->
+        <!-- Modern Button Style -->
         <Style x:Key="ModernButton" TargetType="Button">
             <Setter Property="Background" Value="#6200EA"/>
             <Setter Property="Foreground" Value="White"/>
@@ -30,7 +30,27 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <!-- Стиль для карток -->
+        <!-- Delete Button Style -->
+        <Style x:Key="DeleteButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#E57373"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="8" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FF8A80"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Card Style -->
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="LightGray"/>
@@ -52,21 +72,21 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Заголовок і кнопка Logout -->
+        <!-- Header and Logout Button -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
             <Button Content="Logout" Click="Logout_Click" Style="{StaticResource ModernButton}"/>
         </StackPanel>
 
-        <!-- Вкладки -->
+        <!-- Tabs -->
         <TabControl Grid.Row="1" Margin="10" Background="Transparent" BorderThickness="0">
-            <!-- Вкладка Розклад -->
+            <!-- Schedule Tab -->
             <TabItem Header="Schedule">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="300"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <!-- Форма для створення уроку -->
+                    <!-- Form for adding lesson -->
                     <StackPanel Grid.Column="0" Margin="10">
                         <TextBlock Text="Add Lesson" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
                         <TextBlock Text="Day of Week" Margin="0,0,0,5"/>
@@ -79,54 +99,64 @@
                         </ComboBox>
                         <TextBlock Text="Subject" Margin="0,0,0,5"/>
                         <ComboBox x:Name="SubjectComboBoxSchedule" Margin="0,0,0,10"/>
-                        <!-- Новий ComboBox для предметів -->
                         <TextBlock Text="Time (HH:mm)" Margin="0,0,0,5"/>
                         <TextBox x:Name="TimeTextBox" Margin="0,0,0,10"/>
                         <TextBlock Text="Homework" Margin="0,0,0,5"/>
                         <TextBox x:Name="HomeworkTextBox" Margin="0,0,0,10" AcceptsReturn="True" Height="60"/>
                         <Button Content="Add Lesson" Click="AddLesson_Click" Style="{StaticResource ModernButton}"/>
                     </StackPanel>
-                    <!-- Попередній перегляд розкладу -->
+                    <!-- Schedule preview -->
                     <WrapPanel x:Name="ScheduleCards" Grid.Column="1"/>
                 </Grid>
             </TabItem>
-            <!-- Вкладка Оцінки -->
+            <!-- Grades Tab -->
             <TabItem Header="Grades">
-                <StackPanel Margin="10">
-                    <TextBlock Text="Add Grade" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
-                    <TextBlock Text="Student" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="StudentComboBox" Margin="0,0,0,10"/>
-                    <TextBlock Text="Day of Week" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="GradeDayComboBox" Margin="0,0,0,10">
-                        <ComboBoxItem>Monday</ComboBoxItem>
-                        <ComboBoxItem>Tuesday</ComboBoxItem>
-                        <ComboBoxItem>Wednesday</ComboBoxItem>
-                        <ComboBoxItem>Thursday</ComboBoxItem>
-                        <ComboBoxItem>Friday</ComboBoxItem>
-                    </ComboBox>
-                    <TextBlock Text="Subject" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="SubjectComboBox" Margin="0,0,0,10"/>
-                    <TextBlock Text="Grade (1-12)" Margin="0,0,0,5"/>
-                    <TextBox x:Name="GradeTextBox" Margin="0,0,0,10"/>
-                    <TextBlock Text="Description" Margin="0,0,0,5"/>
-                    <TextBox x:Name="DescriptionTextBox" Margin="0,0,0,10" AcceptsReturn="True" Height="60"/>
-                    <Button Content="Add Grade" Click="AddGrade_Click" Style="{StaticResource ModernButton}"/>
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Form for adding grade -->
+                    <StackPanel Grid.Column="0" Margin="10">
+                        <TextBlock Text="Add Grade" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <TextBlock Text="Student" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="StudentComboBox" Margin="0,0,0,10"/>
+                        <TextBlock Text="Day of Week" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="GradeDayComboBox" Margin="0,0,0,10">
+                            <ComboBoxItem>Monday</ComboBoxItem>
+                            <ComboBoxItem>Tuesday</ComboBoxItem>
+                            <ComboBoxItem>Wednesday</ComboBoxItem>
+                            <ComboBoxItem>Thursday</ComboBoxItem>
+                            <ComboBoxItem>Friday</ComboBoxItem>
+                        </ComboBox>
+                        <TextBlock Text="Subject" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="SubjectComboBox" Margin="0,0,0,10"/>
+                        <TextBlock Text="Grade (1-12)" Margin="0,0,0,5"/>
+                        <TextBox x:Name="GradeTextBox" Margin="0,0,0,10"/>
+                        <TextBlock Text="Description" Margin="0,0,0,5"/>
+                        <TextBox x:Name="DescriptionTextBox" Margin="0,0,0,10" AcceptsReturn="True" Height="60"/>
+                        <Button Content="Add Grade" Click="AddGrade_Click" Style="{StaticResource ModernButton}"/>
+                    </StackPanel>
+                    <!-- Grades schedule preview -->
+                    <WrapPanel x:Name="GradesScheduleCards" Grid.Column="1"/>
+                </Grid>
             </TabItem>
-            <!-- Вкладка Оголошення -->
-            <TabItem Header="Announcements">
-                <StackPanel Margin="10">
-                    <TextBlock Text="Add Announcement" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
-                    <TextBlock Text="Week Start Date" Margin="0,0,0,5"/>
-                    <DatePicker x:Name="WeekStartDatePicker" Margin="0,0,0,10"/>
-                    <TextBlock Text="Announcement Text" Margin="0,0,0,5"/>
-                    <TextBox x:Name="AnnouncementTextBox" Margin="0,0,0,10" AcceptsReturn="True" Height="100"/>
-                    <Button Content="Add Announcement" Click="AddAnnouncement_Click" Style="{StaticResource ModernButton}"/>
-                </StackPanel>
+            <!-- Grade History Tab -->
+            <TabItem Header="Grade History">
+                <Grid Margin="10">
+                    <DataGrid x:Name="GradesDataGrid" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="*"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" Width="*"/>
+                            <DataGridTextColumn Header="Subject" Binding="{Binding SubjectName}" Width="*"/>
+                            <DataGridTextColumn Header="Grade" Binding="{Binding Value}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
             </TabItem>
         </TabControl>
 
-        <!-- Навігація по тижнях -->
+        <!-- Week Navigation -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
             <Button Content="Last Week" Click="LastWeek_Click" Style="{StaticResource ModernButton}" Width="100"/>
             <Button Content="Next Week" Click="NextWeek_Click" Style="{StaticResource ModernButton}" Width="100"/>
