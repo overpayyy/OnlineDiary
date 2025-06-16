@@ -1,7 +1,7 @@
 ﻿<Window x:Class="StudentMainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Student Panel" Height="720" Width="1280" WindowStartupLocation="CenterScreen">
+        Title="Student Panel" Height="720" Width="1280" WindowState="Maximized" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="220"/>
